@@ -1,3 +1,5 @@
+from urllib.parse import urljoin
+
 import requests
 import os.path
 from pathvalidate import sanitize_filename
@@ -12,14 +14,29 @@ def check_for_redirect(response):
 
 
 def get_book_title(url):
-    response = requests.get(url)
-    response.raise_for_status()
+    r = requests.get(url)
+    r.raise_for_status()
 
-    check_for_redirect(response)
+    check_for_redirect(r)
 
-    soup = BeautifulSoup(response.text, 'lxml')
+    soup = BeautifulSoup(r.text, 'lxml')
     book_title = soup.find('title').text.split(' - ')[0]
     return book_title
+
+
+def get_title_and_cover(url):
+    r = requests.get(url)
+    r.raise_for_status()
+
+    check_for_redirect(r)
+
+    soup = BeautifulSoup(r.text, 'lxml')
+
+    book_title = soup.find('title').text.split(' - ')[0]
+    cover = soup.find('div', class_='bookimage').find('img')['src']
+    cover = urljoin('https://tululu.org', cover)
+    print('Заголовок:', book_title)
+    print('Автор:', cover)
 
 
 def download_txt(url, filename, folder='books/'):
@@ -37,16 +54,16 @@ def download_txt(url, filename, folder='books/'):
     id = int(filename.split('.')[0])
 
     payload = {"id": id}
-    response = requests.get(url, params=payload)
-    response.raise_for_status()
+    r = requests.get(url, params=payload)
+    r.raise_for_status()
 
     try:
-        check_for_redirect(response)
+        check_for_redirect(r)
     except HTTPError:
         print(f"Ссылка на скачивание для книги с id{id} не найдена")
     else:
         with open(os.path.join(folder, filename), 'w') as file:
-            file.write(response.text)
+            file.write(r.text)
             return os.path.join(folder, filename)
 
 
@@ -55,11 +72,18 @@ if __name__ == '__main__':
     for id in range(1, 11):
         book_url = f"https://tululu.org/b{id}/"
         try:
-            filenames.append(f"{id}." + get_book_title(book_url) + ".txt")
+            get_title_and_cover(book_url)
         except HTTPError:
             print(f"Книга с id{id} не найдена")
-            continue
 
-    for filename in filenames:
-        download_url = "https://tululu.org/txt.php"
-        download_txt(download_url, filename)
+        # try:
+        #     filenames.append(f"{id}." + get_book_title(book_url) + ".txt")
+        # except HTTPError:
+        #     print(f"Книга с id{id} не найдена")
+        #     continue
+
+    # for filename in filenames:
+    #     download_url = "https://tululu.org/txt.php"
+    #     download_txt(download_url, filename)
+
+
