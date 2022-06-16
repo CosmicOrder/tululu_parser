@@ -17,7 +17,7 @@ def get_book_title(url):
     soup = BeautifulSoup(r.text, 'lxml')
     book_title = soup.find('title').text.split(' - ')[0]
     print(book_title, end='\n\n')
-
+    
 
 def download_comments(url):
     r = requests.get(url)
