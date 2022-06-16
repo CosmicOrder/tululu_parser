@@ -33,7 +33,6 @@ def get_book_cover(url):
     soup = BeautifulSoup(r.text, 'lxml')
 
     cover = soup.find('div', class_='bookimage').find('img')['src']
-    # cover = urljoin('https://tululu.org', cover)
     return cover
 
 
@@ -96,7 +95,6 @@ if __name__ == '__main__':
         except HTTPError:
             print(f"Обложка книги с id{id} не найдена")
             continue
-
         try:
             filenames.append(f"{id}." + get_book_title(book_url) + ".txt")
         except HTTPError:
