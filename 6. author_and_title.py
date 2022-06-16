@@ -7,9 +7,9 @@ def get_author_and_title(url):
 
     soup = BeautifulSoup(r.text, 'lxml')
 
-    title_book = soup.find('title').text.split(' - ')[0]
+    book_title = soup.find('title').text.split(' - ')[0]
     author = soup.find('div', id="content").find('h1').find('a').text
-    print('Заголовок:', title_book)
+    print('Заголовок:', book_title)
     print('Автор:', author)
 
 
