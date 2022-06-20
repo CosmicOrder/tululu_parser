@@ -20,7 +20,7 @@ def download_books(url):
         try:
             check_for_redirect(response)
         except HTTPError:
-            print(f"Книга с id{i} не найдена")
+            print(f"Книга с b{i} не найдена")
             i += 1
         with open(os.path.join("books", f"id{i}.txt"), "w") as file:
             file.write(response.text)

@@ -22,13 +22,8 @@ def parse_book_page(url):
     current_genres = soup.find('span', class_='d_book').find_all('a')
     current_comments = soup.find_all('div', class_='texts')
 
-    genres = []
-    for genre in current_genres:
-        genres.append(genre.text)
-
-    comments = []
-    for comment in current_comments:
-        comments.append(comment.find('span').text)
+    genres = [genre.text for genre in current_genres]
+    comments = [comment.find('span').text for comment in current_comments]
 
     book_page_specs = {
         "title": title,
@@ -37,7 +32,7 @@ def parse_book_page(url):
         "genres": genres,
         "comments": comments,
     }
-    return book_page_specs
+    return print(book_page_specs)
 
 
 if __name__ == '__main__':

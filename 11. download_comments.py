@@ -38,5 +38,5 @@ if __name__ == '__main__':
             get_book_title(book_url)
             download_comments(book_url)
         except HTTPError:
-            # print(f"Книга с id{i} не найдена")
+            print(f"Книга с b{i} не найдена")
             continue
