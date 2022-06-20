@@ -94,7 +94,7 @@ if __name__ == '__main__':
         try:
             filenames.append(f"{book_id}." + get_book_title(book_url) + ".txt")
         except HTTPError:
-            print(f"Книга с b{book_id} не найдена")
+            print(f"Странице книги b{book_id} не найдена")
             continue
         try:
             book_covers.append(get_book_cover(book_url))
