@@ -30,23 +30,22 @@ def check_for_redirect(response):
         raise HTTPError
 
 
-def make_request(url, payload=None):
-    r = requests.get(url, params=payload)
-    r.raise_for_status()
-    check_for_redirect(r)
-    return r
-
-
 def get_book_title(url):
-    r = make_request(url)
-    soup = BeautifulSoup(r.text, 'lxml')
+    response = requests.get(url)
+    response.raise_for_status()
+    check_for_redirect(response)
+
+    soup = BeautifulSoup(response.text, 'lxml')
     book_title = soup.find('title').text.split(' - ')[0]
     return book_title
 
 
 def get_book_cover(url):
-    r = make_request(url)
-    soup = BeautifulSoup(r.text, 'lxml')
+    response = requests.get(url)
+    response.raise_for_status()
+    check_for_redirect(response)
+
+    soup = BeautifulSoup(response.text, 'lxml')
     cover = soup.find('div', class_='bookimage').find('img')['src']
     return cover
 
@@ -59,13 +58,15 @@ def download_txt(url, filename, folder='books/'):
     payload = {"id": book_id}
 
     try:
-        r = make_request(url, payload)
+        response = requests.get(url, params=payload)
+        response.raise_for_status()
+        check_for_redirect(response)
     except HTTPError:
         print(f"Ссылка на скачивание для книги с id{book_id} не найдена")
     else:
         with open(os.path.join(folder, filename), 'w',
                   encoding='utf-8') as file:
-            file.write(r.text)
+            file.write(response.text)
             return os.path.join(folder, filename)
 
 
@@ -74,11 +75,13 @@ def download_image(path, folder='images/'):
     image_name = path.split('/')[-1]
     url = urljoin('https://tululu.org', path)
 
-    r = make_request(url)
+    response = requests.get(url)
+    response.raise_for_status()
+    check_for_redirect(response)
 
     with open(os.path.join(folder, image_name), 'wb') as \
             file:
-        file.write(r.content)
+        file.write(response.content)
         return os.path.join(folder, image_name)
 
 
