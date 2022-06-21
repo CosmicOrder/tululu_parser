@@ -30,24 +30,15 @@ def check_for_redirect(response):
         raise HTTPError
 
 
-def get_book_title(url):
+def get_book_title_and_cover(url):
     response = requests.get(url)
     response.raise_for_status()
     check_for_redirect(response)
 
     soup = BeautifulSoup(response.text, 'lxml')
     book_title = soup.find('title').text.split(' - ')[0]
-    return book_title
-
-
-def get_book_cover(url):
-    response = requests.get(url)
-    response.raise_for_status()
-    check_for_redirect(response)
-
-    soup = BeautifulSoup(response.text, 'lxml')
-    cover = soup.find('div', class_='bookimage').find('img')['src']
-    return cover
+    book_cover = soup.find('div', class_='bookimage').find('img')['src']
+    return book_title, book_cover
 
 
 def download_txt(url, filename, folder='books/'):
@@ -95,12 +86,13 @@ if __name__ == '__main__':
     for book_id in range(args.start_id, args.end_id + 1):
         book_url = f"https://tululu.org/b{book_id}/"
         try:
-            filenames.append(f"{book_id}." + get_book_title(book_url) + ".txt")
+            filenames.append(f"{book_id}." +
+                             get_book_title_and_cover(book_url)[0] + ".txt")
         except HTTPError:
             print(f"Странице книги b{book_id} не найдена")
             continue
         try:
-            book_covers.append(get_book_cover(book_url))
+            book_covers.append(get_book_title_and_cover(book_url)[1])
         except HTTPError:
             print(f"Обложка книги с b{book_id} не найдена")
             continue
