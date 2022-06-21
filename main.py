@@ -41,24 +41,18 @@ def get_book_title_and_cover(url):
     return book_title, book_cover
 
 
-def download_txt(url, filename, folder='books/'):
+def download_txt(url, filename, book_id, folder='books/'):
     Path(folder).mkdir(exist_ok=True)
-    filename = sanitize_filename(filename)
-    book_id = int(filename.split('.')[0])
-
     payload = {"id": book_id}
 
-    try:
-        response = requests.get(url, params=payload)
-        response.raise_for_status()
-        check_for_redirect(response)
-    except HTTPError:
-        print(f"Ссылка на скачивание для книги с id{book_id} не найдена")
-    else:
-        with open(os.path.join(folder, filename), 'w',
-                  encoding='utf-8') as file:
-            file.write(response.text)
-            return os.path.join(folder, filename)
+    response = requests.get(url, params=payload)
+    response.raise_for_status()
+    check_for_redirect(response)
+
+    with open(os.path.join(folder, filename), 'w',
+              encoding='utf-8') as file:
+        file.write(response.text)
+        return os.path.join(folder, filename)
 
 
 def download_image(path, folder='images/'):
@@ -78,7 +72,7 @@ def download_image(path, folder='images/'):
 
 if __name__ == '__main__':
     download_url = "https://tululu.org/txt.php"
-    filenames = []
+    book_titles = []
     book_covers = []
     parser = create_parser()
     args = parser.parse_args()
@@ -86,8 +80,8 @@ if __name__ == '__main__':
     for book_id in range(args.start_id, args.end_id + 1):
         book_url = f"https://tululu.org/b{book_id}/"
         try:
-            filenames.append(f"{book_id}." +
-                             get_book_title_and_cover(book_url)[0] + ".txt")
+            book_titles.append(f"{book_id}." +
+                               get_book_title_and_cover(book_url)[0] + ".txt")
         except HTTPError:
             print(f"Странице книги b{book_id} не найдена")
             continue
@@ -97,8 +91,14 @@ if __name__ == '__main__':
             print(f"Обложка книги с b{book_id} не найдена")
             continue
 
-    for filename in filenames:
-        download_txt(download_url, filename)
+    for filename in book_titles:
+        book_id = int(filename.split('.')[0])
+        try:
+            filename = sanitize_filename(filename)
+            download_txt(download_url, filename, book_id)
+        except HTTPError:
+            print(f"Ссылка на скачивание для книги с "
+                  f"id{book_id} не найдена")
 
     for book_cover in book_covers:
         download_image(book_cover)
