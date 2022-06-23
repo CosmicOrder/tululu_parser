@@ -56,10 +56,10 @@ def download_txt(url, filename, book_id, folder='books/'):
         return os.path.join(folder, filename)
 
 
-def download_image(path, folder='images/'):
+def download_image(path, book_id, folder='images/'):
     Path(folder).mkdir(exist_ok=True)
     image_name = path.split('/')[-1]
-    url = urljoin('https://tululu.org', path)
+    url = urljoin(f'https://tululu.org/b{book_id}/', path)
 
     response = requests.get(url)
     response.raise_for_status()
@@ -97,6 +97,6 @@ if __name__ == '__main__':
         filename = f"{book_id}.{filename}.txt"
         try:
             download_txt(download_url, filename, book_id)
-            download_image(book_cover)
+            download_image(book_cover, book_id)
         except HTTPError:
             print(f"Ссылка для скачивания книги с id{book_id} не найдена")
