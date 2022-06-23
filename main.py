@@ -72,33 +72,25 @@ def download_image(path, folder='images/'):
 
 if __name__ == '__main__':
     download_url = "https://tululu.org/txt.php"
-    book_titles = []
-    book_covers = []
+    book_titles_and_covers = []
     parser = create_parser()
     args = parser.parse_args()
 
     for book_id in range(args.start_id, args.end_id + 1):
         book_url = f"https://tululu.org/b{book_id}/"
         try:
-            book_titles.append(f"{book_id}." +
-                               get_book_title_and_cover(book_url)[0] + ".txt")
+            book_titles_and_covers.append(get_book_title_and_cover(book_url))
         except HTTPError:
-            print(f"Странице книги b{book_id} не найдена")
-            continue
-        try:
-            book_covers.append(get_book_title_and_cover(book_url)[1])
-        except HTTPError:
-            print(f"Обложка книги с b{book_id} не найдена")
-            continue
+            print(f"Страница или обложка книги b{book_id} не найдена")
+            book_titles_and_covers.append(('', ''))
 
-    for filename in book_titles:
-        book_id = int(filename.split('.')[0])
+    for book_id, filename_book_cover in enumerate(book_titles_and_covers,
+                                                args.start_id):
+        filename, book_cover = filename_book_cover
+        filename = sanitize_filename(filename)
+        filename = f"{book_id}.{filename}.txt"
         try:
-            filename = sanitize_filename(filename)
             download_txt(download_url, filename, book_id)
+            download_image(book_cover)
         except HTTPError:
-            print(f"Ссылка на скачивание для книги с "
-                  f"id{book_id} не найдена")
-
-    for book_cover in book_covers:
-        download_image(book_cover)
+            print(f"Ссылка для скачивания книги с id{book_id} не найдена")
