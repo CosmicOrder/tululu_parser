@@ -1,5 +1,6 @@
 import argparse
 import os.path
+import time
 from pathlib import Path
 from urllib.parse import urljoin
 
@@ -75,7 +76,7 @@ if __name__ == '__main__':
     book_titles_and_covers = []
     parser = create_parser()
     args = parser.parse_args()
-
+    connection_error = False
     for book_id in range(args.start_id, args.end_id + 1):
         book_url = f"https://tululu.org/b{book_id}/"
         try:
@@ -83,9 +84,14 @@ if __name__ == '__main__':
         except HTTPError:
             print(f"Страница или обложка книги b{book_id} не найдена")
             book_titles_and_covers.append(('', ''))
+        except ConnectionError:
+            print(f"Сбой при подключение к интернету")
+            if connection_error:
+                time.sleep(2)
+            connection_error = True
 
     for book_id, filename_book_cover in enumerate(book_titles_and_covers,
-                                                args.start_id):
+                                                  args.start_id):
         filename, book_cover = filename_book_cover
         filename = sanitize_filename(filename)
         filename = f"{book_id}.{filename}.txt"
