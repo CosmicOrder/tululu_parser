@@ -31,6 +31,33 @@ def check_for_redirect(response):
         raise HTTPError
 
 
+def parse_book_page(url):
+    r = requests.get(url)
+    r.raise_for_status()
+
+    check_for_redirect(r)
+
+    soup = BeautifulSoup(r.text, 'lxml')
+
+    title = soup.find('title').text.split(' - ')[0]
+    author = soup.find('div', id="content").find('h1').find('a').text
+    cover_path = soup.find('div', class_='bookimage').find('img')['src']
+    current_genres = soup.find('span', class_='d_book').find_all('a')
+    current_comments = soup.find_all('div', class_='texts')
+
+    genres = [genre.text for genre in current_genres]
+    comments = [comment.find('span').text for comment in current_comments]
+
+    book_page_specs = {
+        "title": title,
+        "author": author,
+        "cover_path": cover_path,
+        "genres": genres,
+        "comments": comments,
+    }
+    return print(book_page_specs)
+
+
 def get_book_title_and_cover(url):
     response = requests.get(url)
     response.raise_for_status()
