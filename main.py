@@ -50,10 +50,10 @@ def download_txt(url, filename, book_id, folder='books/'):
     response.raise_for_status()
     check_for_redirect(response)
 
-    with open(os.path.join(folder, filename), 'w',
-              encoding='utf-8') as file:
+    path = os.path.join(folder, filename)
+    with open(path, 'w', encoding='utf-8') as file:
         file.write(response.text)
-        return os.path.join(folder, filename)
+        return path
 
 
 def download_image(path, book_id, folder='images/'):
@@ -65,10 +65,11 @@ def download_image(path, book_id, folder='images/'):
     response.raise_for_status()
     check_for_redirect(response)
 
-    with open(os.path.join(folder, image_name), 'wb') as \
+    path = os.path.join(folder, filename)
+    with open(path, 'wb') as \
             file:
         file.write(response.content)
-        return os.path.join(folder, image_name)
+        return path
 
 
 if __name__ == '__main__':
