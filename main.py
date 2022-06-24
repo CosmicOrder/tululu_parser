@@ -103,7 +103,6 @@ if __name__ == '__main__':
     download_url = "https://tululu.org/txt.php"
     parser = create_parser()
     args = parser.parse_args()
-    connection_error = False
     for book_id in range(args.start_id, args.end_id + 1):
         book_url = f"https://tululu.org/b{book_id}/"
         try:
@@ -117,6 +116,4 @@ if __name__ == '__main__':
                   f"b{book_id} не найдена")
         except ConnectionError:
             print(f"Сбой при подключение к интернету")
-            if connection_error:
-                time.sleep(2)
-            connection_error = True
+            time.sleep(2)
