@@ -92,7 +92,7 @@ def download_image(path, book_id, folder='images/'):
     response.raise_for_status()
     check_for_redirect(response)
 
-    path = os.path.join(folder, filename)
+    path = os.path.join(folder, image_name)
     with open(path, 'wb') as \
             file:
         file.write(response.content)
@@ -101,30 +101,22 @@ def download_image(path, book_id, folder='images/'):
 
 if __name__ == '__main__':
     download_url = "https://tululu.org/txt.php"
-    book_titles_and_covers = []
     parser = create_parser()
     args = parser.parse_args()
     connection_error = False
     for book_id in range(args.start_id, args.end_id + 1):
         book_url = f"https://tululu.org/b{book_id}/"
         try:
-            book_titles_and_covers.append(get_book_title_and_cover(book_url))
+            filename, book_cover = get_book_title_and_cover(book_url)
+            filename = sanitize_filename(filename)
+            filename = f"{book_id}.{filename}.txt"
+            download_txt(download_url, filename, book_id)
+            download_image(book_cover, book_id)
         except HTTPError:
-            print(f"Страница или обложка книги b{book_id} не найдена")
-            book_titles_and_covers.append(('', ''))
+            print(f"Страница книги или ссылка на её скачивание "
+                  f"b{book_id} не найдена")
         except ConnectionError:
             print(f"Сбой при подключение к интернету")
             if connection_error:
                 time.sleep(2)
             connection_error = True
-
-    for book_id, filename_book_cover in enumerate(book_titles_and_covers,
-                                                  args.start_id):
-        filename, book_cover = filename_book_cover
-        filename = sanitize_filename(filename)
-        filename = f"{book_id}.{filename}.txt"
-        try:
-            download_txt(download_url, filename, book_id)
-            download_image(book_cover, book_id)
-        except HTTPError:
-            print(f"Ссылка для скачивания книги с id{book_id} не найдена")
