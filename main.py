@@ -93,8 +93,7 @@ def download_image(path, book_id, folder='images/'):
     check_for_redirect(response)
 
     path = os.path.join(folder, image_name)
-    with open(path, 'wb') as \
-            file:
+    with open(path, 'wb') as file:
         file.write(response.content)
         return path
 
