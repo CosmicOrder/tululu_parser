@@ -58,17 +58,6 @@ def parse_book_page(url):
     return book_page_specs
 
 
-def get_book_title_and_cover(url):
-    response = requests.get(url)
-    response.raise_for_status()
-    check_for_redirect(response)
-
-    soup = BeautifulSoup(response.text, 'lxml')
-    book_title = soup.find('title').text.split(' - ')[0]
-    book_cover = soup.find('div', class_='bookimage').find('img')['src']
-    return book_title, book_cover
-
-
 def download_txt(url, filename, book_id, folder='books/'):
     Path(folder).mkdir(exist_ok=True)
     payload = {"id": book_id}
@@ -105,11 +94,12 @@ if __name__ == '__main__':
     for book_id in range(args.start_id, args.end_id + 1):
         book_url = f"https://tululu.org/b{book_id}/"
         try:
-            filename, book_cover = get_book_title_and_cover(book_url)
+            filename = parse_book_page(book_url)['title']
+            cover_path = parse_book_page(book_url)['cover_path']
             filename = sanitize_filename(filename)
             filename = f"{book_id}.{filename}.txt"
             download_txt(download_url, filename, book_id)
-            download_image(book_cover, book_id)
+            download_image(cover_path, book_id)
         except HTTPError:
             print(f"Страница книги или ссылка на её скачивание "
                   f"b{book_id} не найдена")
