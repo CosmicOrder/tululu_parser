@@ -55,7 +55,7 @@ def parse_book_page(url):
         "genres": genres,
         "comments": comments,
     }
-    return print(book_page_specs)
+    return book_page_specs
 
 
 def get_book_title_and_cover(url):
