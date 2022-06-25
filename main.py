@@ -31,13 +31,8 @@ def check_for_redirect(response):
         raise HTTPError
 
 
-def parse_book_page(url):
-    response = requests.get(url)
-    response.raise_for_status()
-
-    check_for_redirect(response)
-
-    soup = BeautifulSoup(response.text, 'lxml')
+def parse_book_page(html):
+    soup = BeautifulSoup(html.text, 'lxml')
 
     title = soup.find('title').text.split(' - ')[0]
     author = soup.find('div', id="content").find('h1').find('a').text
@@ -94,10 +89,18 @@ if __name__ == '__main__':
     for book_id in range(args.start_id, args.end_id + 1):
         book_url = f"https://tululu.org/b{book_id}/"
         try:
-            filename = parse_book_page(book_url)['title']
-            cover_path = parse_book_page(book_url)['cover_path']
+            response = requests.get(book_url)
+            response.raise_for_status()
+            check_for_redirect(response)
+            book_page_html = response.text
+
+            book_page_specs = parse_book_page(book_page_html)
+            filename = book_page_specs['title']
+            cover_path = book_page_specs['cover_path']
+
             filename = sanitize_filename(filename)
             filename = f"{book_id}.{filename}.txt"
+
             download_txt(download_url, filename, book_id)
             download_image(cover_path, book_id)
         except HTTPError:
