@@ -32,7 +32,7 @@ def check_for_redirect(response):
 
 
 def parse_book_page(html):
-    soup = BeautifulSoup(html.text, 'lxml')
+    soup = BeautifulSoup(html, 'lxml')
 
     title = soup.find('title').text.split(' - ')[0]
     author = soup.find('div', id="content").find('h1').find('a').text
