@@ -1,3 +1,4 @@
+from itertools import count
 from urllib.parse import urljoin
 
 import requests
@@ -18,16 +19,15 @@ def parse_book_url(url):
     soup = BeautifulSoup(response.text, 'lxml')
     book_cards = soup.find('div', id='content').find_all('table')
 
-    page = None
     for book_card in book_cards:
         path = book_card.find('a')['href']
-        book_url = urljoin(f'https://tululu.org/l55/{page}', path)
-
+        book_url = urljoin(url, path)
         print(book_url)
 
 
 if __name__ == '__main__':
-    url = 'https://tululu.org/l55/'
-
-    parse_book_url(url)
-
+    for page in count(1):
+        url = f'https://tululu.org/l55/{page}'
+        parse_book_url(url)
+        if page >= 10:
+            break
