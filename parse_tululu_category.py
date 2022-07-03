@@ -16,12 +16,14 @@ def parse_book_url(url):
     check_for_redirect(response)
 
     soup = BeautifulSoup(response.text, 'lxml')
-    book_table = soup.find('div', id='content').find_all('table')[0]
-    path = book_table.find('a')['href']
+    book_cards = soup.find('div', id='content').find_all('table')
 
     page = None
-    book_url = urljoin(f'https://tululu.org/l55/{page}', path)
-    print(book_url)
+    for book_card in book_cards:
+        path = book_card.find('a')['href']
+        book_url = urljoin(f'https://tululu.org/l55/{page}', path)
+
+        print(book_url)
 
 
 if __name__ == '__main__':
