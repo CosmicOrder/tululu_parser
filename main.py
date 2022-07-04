@@ -12,6 +12,24 @@ from pathvalidate import sanitize_filename
 from requests import HTTPError
 
 
+def create_parser():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--start_page',
+        default=1,
+        help='initial id of downloaded books',
+        type=int,
+    )
+    parser.add_argument(
+        '--end_page',
+        default=702,
+        help='ending id of downloaded books',
+        type=int,
+    )
+
+    return parser
+
+
 def check_for_redirect(response):
     if response.history:
         raise HTTPError
@@ -107,13 +125,15 @@ def download_image(path, book_id, folder='images/'):
 
 
 if __name__ == '__main__':
+    parser = create_parser()
+    args = parser.parse_args()
     download_url = "https://tululu.org/txt.php"
     book_urls = []
     books_json = []
-    for page in count(1):
+    for page in count(args.start_page):
         url = f'https://tululu.org/l55/{page}'
         book_urls += get_books_url(url)
-        if page >= 4:
+        if page >= args.end_page - 1:
             break
 
     for book_url in book_urls:
