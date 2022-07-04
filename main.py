@@ -20,14 +20,23 @@ def check_for_redirect(response):
 def parse_book_page(html):
     soup = BeautifulSoup(html, 'lxml')
 
-    title = soup.find('title').text.split(' - ')[0]
-    author = soup.find('div', id="content").find('h1').find('a').text
-    cover_path = soup.find('div', class_='bookimage').find('img')['src']
-    current_genres = soup.find('span', class_='d_book').find_all('a')
-    current_comments = soup.find_all('div', class_='texts')
+    title_selector = 'title'
+    title = soup.select_one(title_selector).text.split(' - ')[0]
+
+    author_selector = '#content h1 a'
+    author = soup.select_one(author_selector).text
+
+    cover_selector = '.bookimage img'
+    cover_path = soup.select_one(cover_selector)['src']
+
+    genres_selector = 'span.d_book a'
+    current_genres = soup.select(genres_selector)
+
+    comments_selector = '.texts .black'
+    current_comments = soup.select(comments_selector)
 
     genres = [genre.text for genre in current_genres]
-    comments = [comment.find('span').text for comment in current_comments]
+    comments = [comment.text for comment in current_comments]
 
     book_page_specs = {
         "title": title,
@@ -56,11 +65,12 @@ def get_books_url(url):
     check_for_redirect(response)
 
     soup = BeautifulSoup(response.text, 'lxml')
-    book_cards = soup.find('div', id='content').find_all('table')
+    selector = '#content .d_book'
+    book_cards = soup.select(selector)
 
     books_url = []
     for book_card in book_cards:
-        path = book_card.find('a')['href']
+        path = book_card.select_one('a')['href']
         book_url = urljoin(url, path)
         books_url.append(book_url)
 
