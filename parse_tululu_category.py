@@ -11,7 +11,7 @@ def check_for_redirect(response):
         raise HTTPError
 
 
-def parse_book_url(url):
+def get_books_url(url):
     response = requests.get(url)
     response.raise_for_status()
     check_for_redirect(response)
@@ -19,15 +19,18 @@ def parse_book_url(url):
     soup = BeautifulSoup(response.text, 'lxml')
     book_cards = soup.find('div', id='content').find_all('table')
 
+    books_url = []
     for book_card in book_cards:
         path = book_card.find('a')['href']
         book_url = urljoin(url, path)
-        print(book_url)
+        books_url.append(book_url)
+
+    return print(books_url)
 
 
 if __name__ == '__main__':
     for page in count(1):
         url = f'https://tululu.org/l55/{page}'
-        parse_book_url(url)
+        get_books_url(url)
         if page >= 10:
             break

@@ -1,29 +1,15 @@
 import argparse
+import json
 import os.path
 import time
+from itertools import count
 from pathlib import Path
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlsplit
 
 import requests
 from bs4 import BeautifulSoup
 from pathvalidate import sanitize_filename
 from requests import HTTPError
-
-
-def create_parser():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        'start_id',
-        help='initial id of downloaded books',
-        type=int,
-    )
-    parser.add_argument(
-        'end_id',
-        help='ending id of downloaded books',
-        type=int,
-    )
-
-    return parser
 
 
 def check_for_redirect(response):
@@ -51,6 +37,34 @@ def parse_book_page(html):
         "comments": comments,
     }
     return book_page_specs
+
+
+def serialize_book(book):
+    return {
+        "title": book['title'],
+        "author": book['author'],
+        "img_src": book['img_src'],
+        "book_path": book['book_path'],
+        "comments": book['comments'],
+        "genres": book['genres'],
+    }
+
+
+def get_books_url(url):
+    response = requests.get(url)
+    response.raise_for_status()
+    check_for_redirect(response)
+
+    soup = BeautifulSoup(response.text, 'lxml')
+    book_cards = soup.find('div', id='content').find_all('table')
+
+    books_url = []
+    for book_card in book_cards:
+        path = book_card.find('a')['href']
+        book_url = urljoin(url, path)
+        books_url.append(book_url)
+
+    return books_url
 
 
 def download_txt(url, filename, book_id, folder='books/'):
@@ -84,10 +98,16 @@ def download_image(path, book_id, folder='images/'):
 
 if __name__ == '__main__':
     download_url = "https://tululu.org/txt.php"
-    parser = create_parser()
-    args = parser.parse_args()
-    for book_id in range(args.start_id, args.end_id + 1):
-        book_url = f"https://tululu.org/b{book_id}/"
+    book_urls = []
+    books_json = []
+    for page in count(1):
+        url = f'https://tululu.org/l55/{page}'
+        book_urls += get_books_url(url)
+        if page >= 4:
+            break
+
+    for book_url in book_urls:
+        book_id = urlsplit(book_url).path.replace('/', '').replace('b', '')
         try:
             response = requests.get(book_url)
             response.raise_for_status()
@@ -99,13 +119,18 @@ if __name__ == '__main__':
             cover_path = book_page_specs['cover_path']
 
             filename = sanitize_filename(filename)
-            filename = f"{book_id}.{filename}.txt"
+            filename = f"{filename}.txt"
 
-            download_txt(download_url, filename, book_id)
-            download_image(cover_path, book_id)
+            book_page_specs['book_path'] = download_txt(download_url, filename, book_id)
+            book_page_specs['img_src'] = download_image(cover_path, book_id)
+
+            books_json.append(serialize_book(book_page_specs))
         except HTTPError:
             print(f"Страница книги или ссылка на её скачивание "
                   f"b{book_id} не найдена")
         except ConnectionError:
             print(f"Сбой при подключение к интернету")
             time.sleep(2)
+
+    with open('books.json', 'w', encoding='utf8') as file:
+        json.dump(books_json, file, ensure_ascii=False)
