@@ -17,16 +17,35 @@ def create_parser():
     parser.add_argument(
         '--start_page',
         default=1,
-        help='initial id of downloaded books',
+        help='initial page number of downloaded books',
         type=int,
     )
     parser.add_argument(
         '--end_page',
         default=702,
-        help='ending id of downloaded books',
+        help='ending page number of downloaded books',
         type=int,
     )
-
+    parser.add_argument(
+        '--dest_folder',
+        default='books_and_covers/',
+        help='path to parsing results',
+    )
+    parser.add_argument(
+        '--skip_imgs',
+        help='do not download covers',
+        action='store_true',
+    )
+    parser.add_argument(
+        '--skip_txt',
+        help='do not download books',
+        action='store_true',
+    )
+    parser.add_argument(
+        '--json_path',
+        default='.',
+        help='path to json file with results',
+    )
     return parser
 
 
@@ -70,8 +89,8 @@ def serialize_book(book):
     return {
         "title": book['title'],
         "author": book['author'],
-        "img_src": book['img_src'],
-        "book_path": book['book_path'],
+        "img_src": book.get('img_src'),
+        "book_path": book.get('book_path'),
         "comments": book['comments'],
         "genres": book['genres'],
     }
@@ -151,8 +170,19 @@ if __name__ == '__main__':
             filename = sanitize_filename(filename)
             filename = f"{filename}.txt"
 
-            book_page_specs['book_path'] = download_txt(download_url, filename, book_id)
-            book_page_specs['img_src'] = download_image(cover_path, book_id)
+            if not args.skip_txt:
+                book_page_specs['book_path'] = \
+                    download_txt(download_url,
+                                 filename,
+                                 book_id,
+                                 folder=args.dest_folder)
+
+            if not args.skip_imgs:
+                book_page_specs['img_src'] = \
+                    download_image(
+                        cover_path,
+                        book_id,
+                        folder=args.dest_folder)
 
             books_json.append(serialize_book(book_page_specs))
         except HTTPError:
