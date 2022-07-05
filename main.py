@@ -28,7 +28,7 @@ def create_parser():
     )
     parser.add_argument(
         '--dest_folder',
-        default='books_and_covers/',
+        default='parsing_results/',
         help='path to parsing results',
     )
     parser.add_argument(
@@ -192,5 +192,6 @@ if __name__ == '__main__':
             print(f"Сбой при подключение к интернету")
             time.sleep(2)
 
-    with open('books.json', 'w', encoding='utf8') as file:
+    json_path = os.path.join(args.dest_folder, 'books.json')
+    with open(json_path, 'w', encoding='utf8') as file:
         json.dump(books_json, file, ensure_ascii=False)
