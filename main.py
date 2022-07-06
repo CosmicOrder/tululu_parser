@@ -2,7 +2,6 @@ import argparse
 import json
 import os.path
 import time
-from itertools import count
 from pathlib import Path
 from urllib.parse import urljoin, urlsplit
 
@@ -149,11 +148,13 @@ if __name__ == '__main__':
     download_url = "https://tululu.org/txt.php"
     book_urls = []
     books_json = []
-    for page in count(args.start_page):
-        url = f'https://tululu.org/l55/{page}'
-        book_urls += get_books_url(url)
-        if page >= args.end_page - 1:
-            break
+    for page in range(args.start_page, args.end_page):
+        try:
+            url = f'https://tululu.org/l55/{page}'
+            book_urls += get_books_url(url)
+        except HTTPError:
+            print(f"Страница {page} в данной категории не найдена")
+
 
     for book_url in book_urls:
         book_id = urlsplit(book_url).path.replace('/', '').replace('b', '')
