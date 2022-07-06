@@ -147,7 +147,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     download_url = "https://tululu.org/txt.php"
     book_urls = []
-    books_json = []
+    books_for_json = []
     for page in range(args.start_page, args.end_page):
         try:
             url = f'https://tululu.org/l55/{page}'
@@ -182,7 +182,7 @@ if __name__ == '__main__':
                                                             book_id,
                                                             folder=args.dest_folder)
 
-            books_json.append(serialize_book(book_page_specs))
+            books_for_json.append(serialize_book(book_page_specs))
         except HTTPError:
             print(f"Страница книги или ссылка на её скачивание "
                   f"b{book_id} не найдена")
@@ -192,4 +192,4 @@ if __name__ == '__main__':
 
     json_path = os.path.join(args.dest_folder, 'books.json')
     with open(json_path, 'w', encoding='utf8') as file:
-        json.dump(books_json, file, ensure_ascii=False)
+        json.dump(books_for_json, file, ensure_ascii=False)
