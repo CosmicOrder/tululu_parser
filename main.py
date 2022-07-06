@@ -172,18 +172,15 @@ if __name__ == '__main__':
             filename = f"{filename}.txt"
 
             if not args.skip_txt:
-                book_page_specs['book_path'] = \
-                    download_txt(download_url,
-                                 filename,
-                                 book_id,
-                                 folder=args.dest_folder)
+                book_page_specs['book_path'] = download_txt(download_url,
+                                                            filename,
+                                                            book_id,
+                                                            folder=args.dest_folder)
 
             if not args.skip_imgs:
-                book_page_specs['img_src'] = \
-                    download_image(
-                        cover_path,
-                        book_id,
-                        folder=args.dest_folder)
+                book_page_specs['img_src'] = download_image(cover_path,
+                                                            book_id,
+                                                            folder=args.dest_folder)
 
             books_json.append(serialize_book(book_page_specs))
         except HTTPError:
