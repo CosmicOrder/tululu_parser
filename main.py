@@ -84,17 +84,6 @@ def parse_book_page(html):
     return book_page_specs
 
 
-def serialize_book(book):
-    return {
-        "title": book['title'],
-        "author": book['author'],
-        "img_src": book.get('img_src'),
-        "book_path": book.get('book_path'),
-        "comments": book['comments'],
-        "genres": book['genres'],
-    }
-
-
 def get_books_url(url):
     response = requests.get(url)
     response.raise_for_status()
@@ -155,7 +144,6 @@ if __name__ == '__main__':
         except HTTPError:
             print(f"Страница {page} в данной категории не найдена")
 
-
     for book_url in book_urls:
         book_id = urlsplit(book_url).path.replace('/', '').replace('b', '')
         try:
@@ -182,7 +170,16 @@ if __name__ == '__main__':
                                                             book_id,
                                                             folder=args.dest_folder)
 
-            books_for_json.append(serialize_book(book_page_specs))
+            serialized_book = {
+                "title": book_page_specs['title'],
+                "author": book_page_specs['author'],
+                "img_src": book_page_specs.get('img_src'),
+                "book_path": book_page_specs.get('book_path'),
+                "comments": book_page_specs['comments'],
+                "genres": book_page_specs['genres'],
+            }
+
+            books_for_json.append(serialized_book)
         except HTTPError:
             print(f"Страница книги или ссылка на её скачивание "
                   f"b{book_id} не найдена")
