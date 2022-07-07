@@ -63,7 +63,7 @@ def parse_book_page(html):
     author = soup.select_one(author_selector).text
 
     cover_selector = '.bookimage img'
-    cover_path = soup.select_one(cover_selector)['src']
+    cover_url = soup.select_one(cover_selector)['src']
 
     genres_selector = 'span.d_book a'
     current_genres = soup.select(genres_selector)
@@ -77,7 +77,7 @@ def parse_book_page(html):
     book_page_specs = {
         "title": title,
         "author": author,
-        "cover_path": cover_path,
+        "cover_url": cover_url,
         "genres": genres,
         "comments": comments,
     }
@@ -154,7 +154,7 @@ if __name__ == '__main__':
 
             book_page_specs = parse_book_page(book_page_html)
             filename = book_page_specs['title']
-            cover_path = book_page_specs['cover_path']
+            cover_url = book_page_specs['cover_url']
 
             filename = sanitize_filename(filename)
             filename = f"{filename}.txt"
@@ -166,7 +166,7 @@ if __name__ == '__main__':
                                                             folder=args.dest_folder)
 
             if not args.skip_imgs:
-                book_page_specs['img_src'] = download_image(cover_path,
+                book_page_specs['img_src'] = download_image(cover_url,
                                                             book_id,
                                                             folder=args.dest_folder)
 
