@@ -1,5 +1,6 @@
 import json
 import os.path
+from pathlib import Path
 
 import more_itertools
 from jinja2 import Environment, FileSystemLoader, select_autoescape
@@ -19,10 +20,15 @@ def on_reload():
 
     books_specs = list(more_itertools.chunked(books_specs, 2))
 
-    rendered_page = template.render(books=books_specs)
+    for i, j in enumerate(range(0, len(books_specs), 5), 1):
+        folder = 'pages'
+        filename = f'index{i}.html'
+        Path(folder).mkdir(exist_ok=True)
+        rendered_page = template.render(books=books_specs[j:j+5])
 
-    with open('index.html', 'w', encoding='utf-8') as file:
-        file.write(rendered_page)
+        path = os.path.join(folder, filename)
+        with open(path, 'w', encoding='utf-8') as file:
+            file.write(rendered_page)
 
 
 if __name__ == '__main__':
