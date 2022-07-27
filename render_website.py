@@ -1,4 +1,5 @@
 import json
+import math
 import os.path
 from pathlib import Path
 
@@ -19,12 +20,16 @@ def on_reload():
         books_specs = json.load(file)
 
     books_specs = list(more_itertools.chunked(books_specs, 2))
+    count_of_book_pairs = len(books_specs)
 
-    for i, j in enumerate(range(0, len(books_specs), 5), 1):
+    for i, j in enumerate(range(0, count_of_book_pairs, 5), 1):
         folder = 'pages'
         filename = f'index{i}.html'
         Path(folder).mkdir(exist_ok=True)
-        rendered_page = template.render(books=books_specs[j:j+5])
+        rendered_page = template.render(books=books_specs[j:j+5],
+                                        current_page=i,
+                                        page_count=math.ceil(
+                                            count_of_book_pairs / 5))
 
         path = os.path.join(folder, filename)
         with open(path, 'w', encoding='utf-8') as file:
@@ -35,4 +40,4 @@ if __name__ == '__main__':
     on_reload()
     server = Server()
     server.watch('template.html', on_reload)
-    server.serve(default_filename='pages/index1.html')
+    server.serve()
