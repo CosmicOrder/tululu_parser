@@ -13,11 +13,23 @@
     <body>
       <nav aria-label="Page navigation example">
         <ul class="pagination">
-          <li class="page-item"><a class="page-link" href="index{{ current_page - 1 }}.html">Previous</a></li>
+          {% if current_page < 2 %}
+            <li class="page-item disabled"><a class="page-link" href="index{{ current_page - 1 }}.html" tabindex="-1" aria-disabled="true">Назад</a></li>
+          {% else %}
+            <li class="page-item"><a class="page-link" href="index{{ current_page - 1 }}.html">Назад</a></li>
+          {% endif %}
           {% for page in range(1, page_count + 1) %}
-            <li class="page-item"><a class="page-link" href="index{{ page }}.html">{{ page }}</a></li>
+            {% if page == current_page %}
+              <li class="page-item active"><a class="page-link " href="index{{ page }}.html">{{ page }}</a></li>
+            {% else %}
+              <li class="page-item"><a class="page-link " href="index{{ page }}.html">{{ page }}</a></li>
+            {% endif %}
           {% endfor %}
-          <li class="page-item"><a class="page-link" href="index{{ current_page + 1 }}.html">Next</a></li>
+          {% if current_page == page_count %}
+            <li class="page-item disabled"><a class="page-link" href="index{{ current_page + 1 }}.html" tabindex="-1" aria-disabled="true">Вперёд</a></li>
+          {% else %}
+            <li class="page-item"><a class="page-link" href="index{{ current_page + 1 }}.html">Вперёд</a></li>
+          {% endif %}
         </ul>
       </nav>
 
