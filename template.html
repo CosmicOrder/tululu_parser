@@ -14,28 +14,28 @@
       <nav aria-label="Page navigation example">
         <ul class="pagination">
           {% if current_page < 2 %}
-            <li class="page-item disabled"><a class="page-link" href="index{{ current_page - 1 }}.html" tabindex="-1" aria-disabled="true">Назад</a></li>
+            <li class="mt-4 pl-5 page-item disabled"><a class="page-link" tabindex="-1" aria-disabled="true">Назад</a></li>
           {% else %}
-            <li class="page-item"><a class="page-link" href="index{{ current_page - 1 }}.html">Назад</a></li>
+            <li class="mt-4 pl-5 page-item"><a class="page-link" href="index{{ current_page - 1 }}.html">Назад</a></li>
           {% endif %}
           {% for page in range(1, page_count + 1) %}
             {% if page == current_page %}
-              <li class="page-item active"><a class="page-link " href="index{{ page }}.html">{{ page }}</a></li>
+              <li class="mt-4 page-item active"><a class="page-link " href="index{{ page }}.html">{{ page }}</a></li>
             {% else %}
-              <li class="page-item"><a class="page-link " href="index{{ page }}.html">{{ page }}</a></li>
+              <li class="mt-4 page-item"><a class="page-link " href="index{{ page }}.html">{{ page }}</a></li>
             {% endif %}
           {% endfor %}
           {% if current_page == page_count %}
-            <li class="page-item disabled"><a class="page-link" href="index{{ current_page + 1 }}.html" tabindex="-1" aria-disabled="true">Вперёд</a></li>
+            <li class="mt-4 page-item disabled"><a class="page-link" tabindex="-1" aria-disabled="true">Вперёд</a></li>
           {% else %}
-            <li class="page-item"><a class="page-link" href="index{{ current_page + 1 }}.html">Вперёд</a></li>
+            <li class="mt-4 page-item"><a class="page-link" href="index{{ current_page + 1 }}.html">Вперёд</a></li>
           {% endif %}
         </ul>
       </nav>
 
 
       <div class="row">
-        <div class="col-6">
+        <div class="col-5" style="padding-left: 63px">
           {% for book_pare in books %}
             <div class="card mb-3" style="max-width: 540px;">
               <div class="row no-gutters">
@@ -50,6 +50,10 @@
                     <p class="card-text">
                       {{ book_pare[0].author }}
                     </p>
+                    {% for genre in book_pare[0].genres %}
+                      <span class="badge badge-light">{{ genre }}</span>
+                    {% endfor %}
+                    <hr/>
                     <a href="../{{ book_pare[0].book_path|urlencode }}" target="_blank">Читать</a>
                   </div>
                 </div>
@@ -57,7 +61,7 @@
             </div>
           {% endfor %}
         </div>
-          <div class="col-6">
+          <div class="col-5">
             {% for book_pare in books %}
             <div class="card mb-3" style="max-width: 540px;">
               <div class="row no-gutters">
@@ -72,6 +76,10 @@
                     <p class="card-text">
                       {{ book_pare[1].author }}
                     </p>
+                    {% for genre in book_pare[1].genres %}
+                      <span class="badge badge-light">{{ genre }}</span>
+                    {% endfor %}
+                    <hr/>
                     <a href="../{{ book_pare[1].book_path|urlencode }}" target="_blank">Читать</a>
                   </div>
                 </div>
