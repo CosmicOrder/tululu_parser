@@ -1,7 +1,8 @@
-# Парсер книг с сайта tululu.org
+# Парсер книг с сайта tululu.org и онлайн-библиотека
 
 Данный скрипт скачивает книги и их обложки с
-сайта [tululu.org](https://tululu.org/).
+сайта [tululu.org](https://tululu.org/). А после публикует книги в собственной 
+[онлайн-библиотеке](https://cosmicorder.github.io/tululu_parser/pages/index1.html). 
 
 ## Как установить
 
