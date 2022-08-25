@@ -1,9 +1,8 @@
 import json
-import math
 import os.path
 from pathlib import Path
 
-import more_itertools
+from more_itertools import chunked
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from livereload import Server
 
@@ -19,17 +18,15 @@ def on_reload():
     with open(source_path, 'r', encoding='utf-8') as file:
         books_specs = json.load(file)
 
-    books_specs = list(more_itertools.chunked(books_specs, 2))
-    count_of_book_pairs = len(books_specs)
+    books_specs_pages = list(chunked(chunked(books_specs, 2), 5))
 
-    for i, j in enumerate(range(0, count_of_book_pairs, 5), 1):
+    for index, books_specs_page in enumerate(books_specs_pages, 1):
         folder = 'pages'
-        filename = f'index{i}.html'
+        filename = f'index{index}.html'
         Path(folder).mkdir(exist_ok=True)
-        rendered_page = template.render(books=books_specs[j:j+5],
-                                        current_page=i,
-                                        page_count=math.ceil(
-                                            count_of_book_pairs / 5))
+        rendered_page = template.render(books=books_specs_page,
+                                        current_page=index,
+                                        page_count=len(books_specs_pages))
 
         path = os.path.join(folder, filename)
         with open(path, 'w', encoding='utf-8') as file:
