@@ -6,6 +6,8 @@ from more_itertools import chunked
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from livereload import Server
 
+BOOK_PAIRS_ON_THE_PAGE = 5
+
 
 def on_reload():
     env = Environment(
@@ -18,7 +20,8 @@ def on_reload():
     with open(source_path, 'r', encoding='utf-8') as file:
         books_specs = json.load(file)
 
-    books_specs_pages = list(chunked(chunked(books_specs, 2), 5))
+    books_specs_pages = list(chunked(chunked(books_specs, 2),
+                                     BOOK_PAIRS_ON_THE_PAGE))
 
     for index, books_specs_page in enumerate(books_specs_pages, 1):
         folder = 'pages'
